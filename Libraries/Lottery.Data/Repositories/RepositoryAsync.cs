@@ -1,19 +1,19 @@
 ﻿using Lottery.Core;
-using Lottery.Core.Caching;
 using Lottery.Core.Events;
 using Lottery.Core.Infrastructure;
 using Lottery.Core.Models;
 using System.Linq.Expressions;
 using System.Text.Json;
+using System.Linq;
 
 namespace Lottery.Data.Repositories
 {
-    public class RepositoryAsync<TEntity> : IRepositoryAsync<TEntity> where TEntity : BaseEntity, IBaseEntity
+    public class RepositoryAsync<TEntity> : IRepositoryAsync<TEntity>
+        where TEntity : BaseEntity, IBaseEntity
     {
         #region Fields
 
         private readonly IEventPublisher _eventPublisher;
-        private readonly IStaticCacheManager _staticCacheManager;
         private readonly ILotteryFileProvider _fileProvider;
 
         #endregion
@@ -21,11 +21,9 @@ namespace Lottery.Data.Repositories
         #region Ctor
 
         public RepositoryAsync(IEventPublisher eventPublisher,
-            IStaticCacheManager staticCacheManager,
             ILotteryFileProvider provider)
         {
             _eventPublisher = eventPublisher;
-            _staticCacheManager = staticCacheManager;
             _fileProvider = provider;
 
             CreateEntityPathAsync();
@@ -35,69 +33,30 @@ namespace Lottery.Data.Repositories
 
         #region Get
 
-        public async Task<IList<TEntity>> GetAllAsync(
-            Func<IEnumerable<TEntity>, Task<IEnumerable<TEntity>>> func = null,
-            Func<IStaticCacheManager, CacheKey> getCacheKey = null)
-        {
-            async Task<IList<TEntity>> getAllAsync()
-            {
-                var query = func != null ? func(await Table()) : Table();
-                return (await query).ToList();
-            }
-
-            return await GetEntitiesAsync(getAllAsync, getCacheKey);
-        }
-
-        public async Task<TEntity> GetByIdAsync(
-            Guid id,
-            Func<IStaticCacheManager, CacheKey> getCacheKey = null,
-            bool asTracking = false)
+        public async Task<TEntity?> GetByIdAsync(
+            Guid id)
         {
             if (id == Guid.Empty)
                 return default;
 
-            async Task<TEntity> getEntity() => (await Table())?.FirstOrDefault(p => p.Id == id);
-
-            if (getCacheKey == null)
-                return await getEntity();
-
-            var cacheKey = getCacheKey(_staticCacheManager)
-                ?? _staticCacheManager.PrepareKeyForDefaultCache(LotteryEntityCacheDefaults<TEntity>.ByIdCacheKey, id);
-
-            return await _staticCacheManager.GetAsync(cacheKey, getEntity);
+            return (await Table())?.FirstOrDefault(p => p?.Id == id);
         }
 
         public async Task<IList<TEntity>> GetByIdsAsync(
-            IList<Guid> ids,
-            Func<IStaticCacheManager, CacheKey> getCacheKey = null)
+            IList<Guid> ids)
         {
             if (!ids?.Any() ?? true)
                 return new List<TEntity>();
 
-            async Task<IList<TEntity>> getByIds()
-            {
-                var query = await Table();
-                query = query.Where(p => !p.HasDeleted);
+            var query = await Table();
+            query = query?.Where(p => !p.HasDeleted)?.ToList();
 
-                List<TEntity> entries = query.Where(entry => ids.Contains(entry.Id)).ToList();
+            var entries = query?.Where(entry => ids?.Contains(entry.Id) ?? false);
 
-                var sortedEntries = new List<TEntity>();
-                foreach (var id in ids)
-                {
-                    var sortedEntry = entries.FirstOrDefault(entry => entry.Id == id);
-                    if (sortedEntry != null)
-                        sortedEntries.Add(sortedEntry);
-                }
-
-                return sortedEntries;
-            }
-
-            if (getCacheKey == null)
-                return await getByIds();
-
-            var cacheKey = getCacheKey(_staticCacheManager)
-                ?? _staticCacheManager.PrepareKeyForDefaultCache(LotteryEntityCacheDefaults<TEntity>.ByIdsCacheKey, ids);
-            return await _staticCacheManager.GetAsync(cacheKey, getByIds);
+            return (from id in ids
+                    let sortedEntry = entries?.FirstOrDefault(entry => entry?.Id == id)
+                    where sortedEntry != null
+                    select sortedEntry).ToList();
         }
 
         #endregion
@@ -109,9 +68,9 @@ namespace Lottery.Data.Repositories
 
             entity.DeleteEntity();
 
-            var entities = await GetAllAsync();
+            var entities = await Table();
 
-            var search = entities.FirstOrDefault(p => p.Id == entity?.Id);
+            var search = entities?.FirstOrDefault(p => p?.Id == entity?.Id);
             if (search == null)
                 return false;
 
@@ -137,10 +96,10 @@ namespace Lottery.Data.Repositories
 
         public async Task InsertAsync(IEnumerable<TEntity> entities, bool publishEvent = true)
         {
-            var allEntities = await GetAllAsync();
+            var allEntities = await Table();
 
             foreach (var entity in entities)
-                allEntities.Add(entity);
+                allEntities?.Add(entity);
 
             if (publishEvent)
                 foreach (var entity in allEntities)
@@ -154,7 +113,7 @@ namespace Lottery.Data.Repositories
             return await UpdateAsync(new List<TEntity> { entity }, publishEvent);
         }
 
-        public async Task<bool> UpdateAsync(IEnumerable<TEntity> entities, bool publishEvent = true)
+        public async Task<bool> UpdateAsync(IEnumerable<TEntity?>? entities, bool publishEvent = true)
         {
             if (entities == null)
                 throw new LotteryException($"{nameof(entities)} is null");
@@ -162,11 +121,11 @@ namespace Lottery.Data.Repositories
             if (!entities.Any())
                 return false;
 
-            var allEntities = await GetAllAsync();
+            var allEntities = await Table();
 
             foreach (var entity in entities)
             {
-                var obj = allEntities.FirstOrDefault(x => x.Id == entity.Id);
+                var obj = allEntities?.FirstOrDefault(x => x?.Id == entity?.Id);
                 obj = entity;
             }
 
@@ -177,55 +136,18 @@ namespace Lottery.Data.Repositories
             return true;
         }
 
+        public async Task<IList<TEntity?>?> Table()
+        {
+            var entitiesJson = _fileProvider.FileExists(GetEntityFilePath()) ?
+                (await File.ReadAllTextAsync(GetEntityFilePath()).ConfigureAwait(false)) : null;
+
+            if (string.IsNullOrEmpty(entitiesJson))
+                return new List<TEntity?>();
+
+            return JsonSerializer.Deserialize<IList<TEntity?>?>(entitiesJson);
+        }
+
         #region Utilities
-
-        protected virtual async Task<IList<TEntity>> GetEntitiesAsync(
-            Func<Task<IList<TEntity>>> getAllAsync,
-            Func<IStaticCacheManager, CacheKey> getCacheKey)
-        {
-            if (getCacheKey == null)
-                return await getAllAsync();
-
-            var cacheKey = getCacheKey(_staticCacheManager)
-                           ?? _staticCacheManager.PrepareKeyForDefaultCache(LotteryEntityCacheDefaults<TEntity>.AllCacheKey);
-            return await _staticCacheManager.GetAsync(cacheKey, getAllAsync);
-        }
-
-        protected virtual IList<TEntity> GetEntities(Func<IList<TEntity>> getAll, Func<IStaticCacheManager, CacheKey> getCacheKey)
-        {
-            if (getCacheKey == null)
-                return getAll();
-
-            var cacheKey = getCacheKey(_staticCacheManager)
-                           ?? _staticCacheManager.PrepareKeyForDefaultCache(LotteryEntityCacheDefaults<TEntity>.AllCacheKey);
-
-            return _staticCacheManager.Get(cacheKey, getAll);
-        }
-
-        protected virtual async Task<IList<TEntity>> GetEntitiesAsync(Func<Task<IList<TEntity>>> getAllAsync, Func<IStaticCacheManager, Task<CacheKey>> getCacheKey)
-        {
-            if (getCacheKey == null)
-                return await getAllAsync();
-
-            var cacheKey = await getCacheKey(_staticCacheManager)
-                           ?? _staticCacheManager.PrepareKeyForDefaultCache(LotteryEntityCacheDefaults<TEntity>.AllCacheKey);
-            return await _staticCacheManager.GetAsync(cacheKey, getAllAsync);
-        }
-
-        private async Task<IEnumerable<TEntity>> Table()
-        {
-            async Task<IEnumerable<TEntity>> getAllAsync()
-            {
-                var entitiesJson = _fileProvider.FileExists(GetEntityFilePath()) ?
-                    (await File.ReadAllTextAsync(GetEntityFilePath())) : null;
-
-                return !string.IsNullOrEmpty(entitiesJson) ? 
-                    JsonSerializer.Deserialize<IEnumerable<TEntity>>(entitiesJson) : Enumerable.Empty<TEntity>();
-            }
-
-            var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(LotteryEntityCacheDefaults<TEntity>.AllCacheKey);
-            return await _staticCacheManager.GetAsync(cacheKey, getAllAsync);
-        }
 
         private void CreateEntityPathAsync()
         {

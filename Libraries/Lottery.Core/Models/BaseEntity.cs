@@ -19,11 +19,11 @@
 
         public Guid Id { get; set; }
 
-        public DateTime CreatedOnUtc { get; protected set; }
+        public DateTime CreatedOnUtc { get; set; }
 
-        public DateTime? DeletedOnUtc { get; protected set; }
+        public DateTime? DeletedOnUtc { get; set; }
 
-        public DateTime? UpdatedOnUtc { get; protected set; }
+        public DateTime? UpdatedOnUtc { get; set; }
 
         public bool HasDeleted { get { return DeletedOnUtc.HasValue; } }
 

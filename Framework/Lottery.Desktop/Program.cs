@@ -1,6 +1,5 @@
 using Lottery.Core;
 using Lottery.Core.Infrastructure;
-using Lottery.Core.Logging;
 using Lottery.Desktop.Forms;
 using Lottery.Services.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -61,7 +60,7 @@ namespace Lottery.Desktop
             return Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsUnc;
         }
 
-        private static async void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             if (e.ExceptionObject is LotteryException lotteryException)
             {
@@ -73,7 +72,7 @@ namespace Lottery.Desktop
             }
 
             var logger = EngineContext.Current.Resolve<ILogger>();
-            await logger.InsertLogAsync(LogLevel.Error, e.ExceptionObject?.ToString());
+            logger.ErrorAsync(e?.ExceptionObject?.ToString(), (Exception)e?.ExceptionObject).GetAwaiter().GetResult();
         }
     }
 }

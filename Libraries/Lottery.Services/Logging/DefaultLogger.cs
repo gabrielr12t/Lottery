@@ -13,7 +13,7 @@ namespace Lottery.Services.Logging
 
         #region Ctor
 
-        public DefaultLogger( 
+        public DefaultLogger(
             IRepositoryAsync<Log> logRepository)
         {
             _logRepository = logRepository;
@@ -54,33 +54,33 @@ namespace Lottery.Services.Logging
             //await _logRepository.dele();
         }
 
-        public virtual async Task<IList<Log>> GetAllLogsAsync(string userEmail = null, DateTime? fromUtc = null, DateTime? toUtc = null,
+        public virtual async Task<IList<Log?>?> GetAllLogsAsync(
+            DateTime? fromUtc = null, DateTime? toUtc = null,
             string message = "", LogLevel? logLevel = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var logs = await _logRepository.GetAllAsync(query =>
+            var allLogs = await _logRepository.Table();
+
+            IEnumerable<Log?>? result = null;
+
+            if (fromUtc.HasValue)
+                result = allLogs?.Where(l => fromUtc.Value <= l?.CreatedOnUtc);
+
+            if (toUtc.HasValue)
+                result = allLogs?.Where(l => toUtc.Value >= l?.CreatedOnUtc);
+
+            if (logLevel.HasValue)
             {
-                if (fromUtc.HasValue)
-                    query = query.Where(l => fromUtc.Value <= l.CreatedOnUtc);
+                var logLevelId = (int)logLevel.Value;
+                result = allLogs?.Where(l => logLevelId == l?.LogLevelId);
+            }
 
-                if (toUtc.HasValue)
-                    query = query.Where(l => toUtc.Value >= l.CreatedOnUtc);
+            if (!string.IsNullOrEmpty(message))
+                result = allLogs?.Where(l => l.ShortMessage.Contains(message) || l.FullMessage.Contains(message));
 
-                if (logLevel.HasValue)
-                {
-                    var logLevelId = (int)logLevel.Value;
-                    query = query.Where(l => logLevelId == l.LogLevelId);
-                }
+            result = allLogs?.OrderByDescending(l => l?.CreatedOnUtc);
 
-                if (!string.IsNullOrEmpty(message))
-                    query = query.Where(l => l.ShortMessage.Contains(message) || l.FullMessage.Contains(message));
-
-                query = query.OrderByDescending(l => l.CreatedOnUtc);
-
-                return Task.FromResult(query);
-            }, cache => default);
-
-            return logs;
+            return result?.ToList();
         }
 
         public virtual async Task<Log> GetLogByIdAsync(Guid logId)

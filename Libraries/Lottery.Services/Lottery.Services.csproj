@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Games\Caching\" />
+    <Folder Include="Games\" />
   </ItemGroup>
 
 </Project>

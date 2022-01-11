@@ -1,5 +1,4 @@
-﻿using Lottery.Core.Caching;
-using Lottery.Core.Models;
+﻿using Lottery.Core.Models;
 using System.Linq.Expressions;
 
 namespace Lottery.Data.Repositories
@@ -8,11 +7,9 @@ namespace Lottery.Data.Repositories
     {
         #region Get
 
-        Task<TEntity> GetByIdAsync(Guid id, Func<IStaticCacheManager, CacheKey> getCacheKey = null, bool asTracking = false);
+        Task<TEntity> GetByIdAsync(Guid id);
 
-        Task<IList<TEntity>> GetByIdsAsync(IList<Guid> ids, Func<IStaticCacheManager, CacheKey> getCacheKey = null);
-
-        Task<IList<TEntity>> GetAllAsync(Func<IEnumerable<TEntity>, Task<IEnumerable<TEntity>>> func = null, Func<IStaticCacheManager, CacheKey> getCacheKey = null);
+        Task<IList<TEntity>> GetByIdsAsync(IList<Guid> ids);
 
         #endregion
 
@@ -41,5 +38,7 @@ namespace Lottery.Data.Repositories
         Task<bool> DeleteAsync(IList<TEntity> entities, bool removeFromTable = false, bool publishEvent = true);
 
         #endregion
+
+        Task<IList<TEntity?>?> Table();
     }
 }

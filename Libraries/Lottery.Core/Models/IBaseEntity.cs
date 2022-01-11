@@ -4,11 +4,11 @@
     {
         Guid Id { get; set; }
 
-        DateTime CreatedOnUtc { get; }
+        DateTime CreatedOnUtc { get; set; }
 
-        DateTime? UpdatedOnUtc { get; }
+        DateTime? UpdatedOnUtc { get; set; }
 
-        DateTime? DeletedOnUtc { get; }
+        DateTime? DeletedOnUtc { get; set; }
 
         bool HasDeleted { get; }
 

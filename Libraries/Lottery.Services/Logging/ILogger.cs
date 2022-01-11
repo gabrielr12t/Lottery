@@ -12,9 +12,10 @@ namespace Lottery.Services.Logging
 
         Task ClearLogAsync();
 
-        Task<IList<Log>> GetAllLogsAsync(string userEmail = null, DateTime? fromUtc = null, DateTime? toUtc = null,
-            string message = "", LogLevel? logLevel = null,
-            int pageIndex = 0, int pageSize = int.MaxValue);
+        Task<IList<Log?>?> GetAllLogsAsync(
+             DateTime? fromUtc = null, DateTime? toUtc = null,
+             string message = "", LogLevel? logLevel = null,
+             int pageIndex = 0, int pageSize = int.MaxValue);
 
         Task<Log> GetLogByIdAsync(Guid logId);
 

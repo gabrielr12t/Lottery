@@ -1,5 +1,6 @@
 ﻿using Lottery.Core.Events;
 using Lottery.Core.Infrastructure;
+using Lottery.Services.Logging;
 
 namespace Lottery.Services.Events
 {
@@ -20,11 +21,11 @@ namespace Lottery.Services.Events
                 {
                     try
                     {
-                        //var logger = EngineContext.Current.Resolve<ILogger>();
-                        //if (logger == null)
-                        //    return;
+                        var logger = EngineContext.Current.Resolve<ILogger>();
+                        if (logger == null)
+                            return;
 
-                        //await logger.ErrorAsync(exception.Message, exception);
+                        await logger.ErrorAsync(exception.Message, exception);
                     }
                     catch
                     {

@@ -1,5 +1,4 @@
-﻿using Lottery.Core.Caching;
-using Lottery.Core.Events;
+﻿using Lottery.Core.Events;
 using Lottery.Core.Infrastructure;
 using Lottery.Core.Infrastructure.DependencyManagement;
 using Lottery.Services.Events;
@@ -12,8 +11,6 @@ namespace Lottery.Framework.Infrastructure
     {
         public void Register(IServiceCollection services, ITypeFinder typeFinder)
         {
-            services.AddScoped<ILocker, MemoryCacheManager>();
-            services.AddScoped<IStaticCacheManager, MemoryCacheManager>();
             services.AddScoped<ILotteryFileProvider, LotteryFileProvider>();
             services.AddScoped<ILogger, DefaultLogger>();
 
