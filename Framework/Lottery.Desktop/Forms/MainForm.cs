@@ -101,14 +101,12 @@ namespace Lottery.Desktop.Forms
 
         private void ButtonPlayClick(object sender, EventArgs e)
         {
-            throw new Exception("Erro não tratável");
-            //OpenChildForm(new PlayForm(LoadTheme), sender);
+            OpenChildForm(new PlayForm(LoadTheme), sender);
         }
 
         private void ButtonHistoricClick(object sender, EventArgs e)
         {
-            throw new LotteryException("Erro tratável");
-            //OpenChildForm(new HistoricGamesForm(LoadTheme), sender);
+            OpenChildForm(new HistoricGamesForm(LoadTheme), sender);
         }
 
         private void btnCloseChildFormClick(object sender, EventArgs e)
