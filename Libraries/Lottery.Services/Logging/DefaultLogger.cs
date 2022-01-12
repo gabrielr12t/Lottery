@@ -130,7 +130,7 @@ namespace Lottery.Services.Logging
                 await InsertLogAsync(LogLevel.Warning, message, exception?.ToString() ?? string.Empty);
         }
 
-        public virtual async Task ErrorAsync(string message, Exception exception = null)
+        public virtual async Task ErrorAsync(string? message, Exception? exception = null)
         {
             //don't log thread abort exception
             if (exception is System.Threading.ThreadAbortException)
