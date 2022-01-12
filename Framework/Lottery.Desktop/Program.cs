@@ -2,27 +2,79 @@ using Lottery.Core;
 using Lottery.Core.Infrastructure;
 using Lottery.Desktop.Forms;
 using Lottery.Services.Logging;
+using Lottery.Shared.ServicesForm.Alerts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lottery.Desktop
 {
     public static class Program
     {
-        private static readonly IServiceCollection _services;
-        private static readonly ILotteryEnvironment _environment;
-
-        static Program()
-        {
-            _services = new ServiceCollection();
-            _environment = new LotteryEnvironment(GetAbsoluteApplicationPath());
-        }
 
         [STAThread]
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
 
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            Application.ThreadException += Catch;
+            AppDomain.CurrentDomain.UnhandledException += Catch;
+
+            LotteryApplication.Instance.Start();
+        }
+
+        static async void Catch(object sender, ThreadExceptionEventArgs e)
+        {
+            await Catch(e?.Exception);
+        }
+
+        static async void Catch(object sender, UnhandledExceptionEventArgs e)
+        {
+            await Catch(e?.ExceptionObject as Exception);
+        }
+
+        static async Task Catch(Exception? exception)
+        {
+            var alertService = EngineContext.Current.Resolve<IAlertService>();
+
+            var errorMessage = exception is LotteryException lotteryException ?
+                lotteryException.Message : "Ocorreu um erro interno";
+
+            alertService.ErrorAlert(errorMessage);
+
+            var logger = EngineContext.Current.Resolve<ILogger>();
+            await logger.ErrorAsync(exception?.Message, exception) ;
+        }
+    }
+
+    public class LotteryApplication
+    {
+        private static LotteryApplication _instance;
+        private readonly IServiceCollection _services;
+        private readonly ILotteryEnvironment _environment;
+
+        private LotteryApplication()
+        {
+            _services = new ServiceCollection();
+            _environment = new LotteryEnvironment(GetAbsoluteApplicationPath());
+        }
+
+        public static LotteryApplication Instance
+        {
+            get
+            {
+                return _instance ??= new LotteryApplication();
+            }
+        }
+
+        internal void Start()
+        {
+            StartOverviewWindow();
+        }
+
+        private void StartOverviewWindow()
+        {
             ConfigureDefaultServices();
 
             CommonHelper.DefaultFileProvider = new LotteryFileProvider(_environment);
@@ -31,21 +83,25 @@ namespace Lottery.Desktop
             Startup.ConfigureServices(_services, _environment);
             Startup.Configure(new LotteryApplicationBuilder(_services.BuildServiceProvider()));
 
-            Application.Run(new MainForm());
+            var mainForm = EngineContext.Current.Resolve<MainForm>();
+
+            Application.Run(mainForm);
         }
 
-        private static void ConfigureDefaultServices()
+        #region Utilities
+
+        private void ConfigureDefaultServices()
         {
             _services.AddSingleton(_environment);
         }
 
-        private static string GetAbsoluteApplicationPath()
+        private string GetAbsoluteApplicationPath()
         {
             var programFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
             return Combine(programFilesPath, LotteryCoreSettingsDefaults.ApplicationPath);
         }
 
-        private static string Combine(params string[] paths)
+        private string Combine(params string[] paths)
         {
             var path = Path.Combine(paths.SelectMany(p => IsUncPath(p) ? new[] { p } : p.Split('\\', '/')).ToArray());
 
@@ -60,19 +116,6 @@ namespace Lottery.Desktop
             return Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsUnc;
         }
 
-        private static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            if (e.ExceptionObject is LotteryException lotteryException)
-            {
-                //exibir msg no form
-            }
-            else
-            {
-                //exibir mensagem default no form
-            }
-
-            var logger = EngineContext.Current.Resolve<ILogger>();
-            logger.ErrorAsync(e?.ExceptionObject?.ToString(), (Exception)e?.ExceptionObject).GetAwaiter().GetResult();
-        }
+        #endregion
     }
 }

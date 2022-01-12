@@ -1,4 +1,6 @@
-﻿using Lottery.Desktop.Forms.Settings;
+﻿using Lottery.Core;
+using Lottery.Desktop.Forms.Settings;
+using Lottery.Shared.ServicesForm.Alerts;
 
 namespace Lottery.Desktop.Forms
 {
@@ -99,12 +101,14 @@ namespace Lottery.Desktop.Forms
 
         private void ButtonPlayClick(object sender, EventArgs e)
         {
-            OpenChildForm(new PlayForm(LoadTheme), sender);
+            throw new Exception("Erro não tratável");
+            //OpenChildForm(new PlayForm(LoadTheme), sender);
         }
 
         private void ButtonHistoricClick(object sender, EventArgs e)
         {
-            OpenChildForm(new HistoricGamesForm(LoadTheme), sender);
+            throw new LotteryException("Erro tratável");
+            //OpenChildForm(new HistoricGamesForm(LoadTheme), sender);
         }
 
         private void btnCloseChildFormClick(object sender, EventArgs e)

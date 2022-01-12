@@ -27,6 +27,6 @@ namespace Lottery.Services.Logging
 
         Task WarningAsync(string message, Exception exception = null);
 
-        Task ErrorAsync(string message, Exception exception = null);
+        Task ErrorAsync(string? message, Exception? exception = null);
     }
 }

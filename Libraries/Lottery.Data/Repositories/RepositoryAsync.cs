@@ -87,6 +87,7 @@ namespace Lottery.Data.Repositories
             throw new NotImplementedException();
         }
 
+
         public async Task<TEntity> InsertAsync(TEntity entity, bool publishEvent = true)
         {
             await InsertAsync(new List<TEntity> { entity }, publishEvent);
@@ -139,7 +140,7 @@ namespace Lottery.Data.Repositories
         public async Task<IList<TEntity?>?> Table()
         {
             var entitiesJson = _fileProvider.FileExists(GetEntityFilePath()) ?
-                (await File.ReadAllTextAsync(GetEntityFilePath()).ConfigureAwait(false)) : null;
+                (await File.ReadAllTextAsync(GetEntityFilePath())) : null;
 
             if (string.IsNullOrEmpty(entitiesJson))
                 return new List<TEntity?>();

@@ -2,7 +2,7 @@
 using Lottery.Core.Infrastructure;
 using Lottery.Core.Infrastructure.DependencyManagement;
 using Lottery.Services.Events;
-using Lottery.Services.Logging;
+using Lottery.Services.Logging; 
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lottery.Framework.Infrastructure
@@ -14,7 +14,7 @@ namespace Lottery.Framework.Infrastructure
             services.AddScoped<ILotteryFileProvider, LotteryFileProvider>();
             services.AddScoped<ILogger, DefaultLogger>();
 
-            services.AddSingleton<IEventPublisher, EventPublisher>();
+            services.AddSingleton<IEventPublisher, EventPublisher>(); 
 
             //event consumers
             var consumers = typeFinder.FindClassesOfType(typeof(IConsumer<>)).ToList();
