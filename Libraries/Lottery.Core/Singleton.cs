@@ -2,9 +2,9 @@
 {
     public class Singleton<T> : BaseSingleton
     {
-        private static T instance;
+        private static T? instance;
 
-        public static T Instance
+        public static T? Instance
         {
             get => instance;
             set

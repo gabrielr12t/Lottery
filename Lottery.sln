@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lottery.Framework", "Framew
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lottery.Desktop", "Framework\Lottery.Desktop\Lottery.Desktop.csproj", "{AC250296-BC28-4615-83DC-3B60EB69A82A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lottery.Shared", "Libraries\Lottery.Shared\Lottery.Shared.csproj", "{DE579AE4-69C8-4BA3-956D-7121E0995680}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lottery.Shared", "Libraries\Lottery.Shared\Lottery.Shared.csproj", "{DE579AE4-69C8-4BA3-956D-7121E0995680}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{726744B1-F197-4663-9EAD-A3F765FEC2DA}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
