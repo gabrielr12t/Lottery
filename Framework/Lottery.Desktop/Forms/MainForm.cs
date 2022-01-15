@@ -1,6 +1,5 @@
-﻿using Lottery.Core;
-using Lottery.Desktop.Forms.Settings;
-using Lottery.Shared.ServicesForm.Alerts;
+﻿using Lottery.Desktop.Forms.Settings;
+using Lottery.Desktop.ViewModels;
 
 namespace Lottery.Desktop.Forms
 {
@@ -12,12 +11,16 @@ namespace Lottery.Desktop.Forms
         private ThemeColor _themeColor;
         private Form _activeForm;
 
-        public MainForm()
+        private readonly MainViewModel _mainViewModel;
+
+        public MainForm(MainViewModel mainViewModel)
         {
             InitializeComponent();
 
+            _mainViewModel = mainViewModel;
             _themeColor = new ThemeColor();
             _random = new Random();
+            lblTitle.Text = _mainViewModel.Title;
             btnCloseChildForm.Visible = false;
         }
 
@@ -30,25 +33,6 @@ namespace Lottery.Desktop.Forms
             tempIndex = index;
             string color = _themeColor.ColorList[index];
             return ColorTranslator.FromHtml(color);
-        }
-
-        private void ActivateButton(object sender)
-        {
-            if (sender != null && _currentButton != (Button)sender)
-            {
-                DisableButton();
-
-                Color color = SelectThemeColor();
-                _currentButton = (Button)sender;
-                _currentButton.BackColor = color;
-                _currentButton.ForeColor = Color.White;
-
-                panelTitleBar.BackColor = color;
-                panelLogo.BackColor = _themeColor.ChangeColorBrightness(color, -0.3);
-                _themeColor.PrimaryColor = color;
-                _themeColor.SecondaryColor = _themeColor.ChangeColorBrightness(color, -0.3);
-                btnCloseChildForm.Visible = true;
-            }
         }
 
         private void DisableButton()
@@ -99,17 +83,36 @@ namespace Lottery.Desktop.Forms
             lblTitle.Text = childForm.Text;
         }
 
-        private void ButtonPlayClick(object sender, EventArgs e)
+        private void ActivateButton(object sender)
+        {
+            if (sender != null && _currentButton != (Button)sender)
+            {
+                DisableButton();
+
+                Color color = SelectThemeColor();
+                _currentButton = (Button)sender;
+                _currentButton.BackColor = color;
+                _currentButton.ForeColor = Color.White;
+
+                panelTitleBar.BackColor = color;
+                panelLogo.BackColor = _themeColor.ChangeColorBrightness(color, -0.3);
+                _themeColor.PrimaryColor = color;
+                _themeColor.SecondaryColor = _themeColor.ChangeColorBrightness(color, -0.3);
+                btnCloseChildForm.Visible = true;
+            }
+        }
+
+        private void ButtonPlayClickHandler(object sender, EventArgs e)
         {
             OpenChildForm(new PlayForm(LoadTheme), sender);
         }
 
-        private void ButtonHistoricClick(object sender, EventArgs e)
+        private void ButtonHistoricClickHandler(object sender, EventArgs e)
         {
             OpenChildForm(new HistoricGamesForm(LoadTheme), sender);
         }
 
-        private void btnCloseChildFormClick(object sender, EventArgs e)
+        private void ButtonCloseChildFormClickHandler(object sender, EventArgs e)
         {
             _activeForm?.Close();
             Reset();
@@ -118,11 +121,12 @@ namespace Lottery.Desktop.Forms
         private void Reset()
         {
             DisableButton();
-            lblTitle.Text = "HOME";
+
+            lblTitle.Text = _mainViewModel.Title; 
             panelTitleBar.BackColor = Color.FromArgb(0, 150, 136);
             panelLogo.BackColor = Color.FromArgb(39, 39, 58);
             _currentButton = null;
-            btnCloseChildForm.Visible = false;  
+            btnCloseChildForm.Visible = false;
         }
     }
 }

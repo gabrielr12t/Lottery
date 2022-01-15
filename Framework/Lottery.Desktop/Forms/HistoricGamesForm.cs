@@ -3,6 +3,7 @@
     public partial class HistoricGamesForm : Form
     {
         private readonly Action? _loadTheme;
+
         public HistoricGamesForm(Action? loadTheme = null)
         {
             InitializeComponent();

@@ -37,9 +37,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.ToolTipBtnPlay = new System.Windows.Forms.ToolTip(this.components);
             this.panelTitleBar = new System.Windows.Forms.Panel();
+            this.btnCloseChildForm = new System.Windows.Forms.Button();
             this.lblTitle = new System.Windows.Forms.Label();
             this.panelDesktopPanel = new System.Windows.Forms.Panel();
-            this.btnCloseChildForm = new System.Windows.Forms.Button();
             this.panelMenu.SuspendLayout();
             this.panelLogo.SuspendLayout();
             this.panelTitleBar.SuspendLayout();
@@ -70,7 +70,7 @@
             this.btnHistoric.TabIndex = 1;
             this.btnHistoric.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnHistoric.UseVisualStyleBackColor = true;
-            this.btnHistoric.Click += new System.EventHandler(this.ButtonHistoricClick);
+            this.btnHistoric.Click += new System.EventHandler(this.ButtonHistoricClickHandler);
             // 
             // btnPlay
             // 
@@ -86,7 +86,7 @@
             this.btnPlay.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.ToolTipBtnPlay.SetToolTip(this.btnPlay, "Jogar");
             this.btnPlay.UseVisualStyleBackColor = true;
-            this.btnPlay.Click += new System.EventHandler(this.ButtonPlayClick);
+            this.btnPlay.Click += new System.EventHandler(this.ButtonPlayClickHandler);
             // 
             // panelLogo
             // 
@@ -120,26 +120,6 @@
             this.panelTitleBar.Size = new System.Drawing.Size(600, 80);
             this.panelTitleBar.TabIndex = 1;
             // 
-            // lblTitle
-            // 
-            this.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblTitle.ForeColor = System.Drawing.Color.White;
-            this.lblTitle.Location = new System.Drawing.Point(264, 26);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(78, 26);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "HOME";
-            // 
-            // panelDesktopPanel
-            // 
-            this.panelDesktopPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelDesktopPanel.Location = new System.Drawing.Point(200, 80);
-            this.panelDesktopPanel.Name = "panelDesktopPanel";
-            this.panelDesktopPanel.Size = new System.Drawing.Size(600, 370);
-            this.panelDesktopPanel.TabIndex = 2;
-            // 
             // btnCloseChildForm
             // 
             this.btnCloseChildForm.Dock = System.Windows.Forms.DockStyle.Left;
@@ -151,7 +131,26 @@
             this.btnCloseChildForm.Size = new System.Drawing.Size(45, 80);
             this.btnCloseChildForm.TabIndex = 1;
             this.btnCloseChildForm.UseVisualStyleBackColor = true;
-            this.btnCloseChildForm.Click += new System.EventHandler(this.btnCloseChildFormClick);
+            this.btnCloseChildForm.Click += new System.EventHandler(this.ButtonCloseChildFormClickHandler);
+            // 
+            // lblTitle
+            // 
+            this.lblTitle.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblTitle.ForeColor = System.Drawing.Color.White;
+            this.lblTitle.Location = new System.Drawing.Point(264, 26);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(0, 26);
+            this.lblTitle.TabIndex = 0;
+            // 
+            // panelDesktopPanel
+            // 
+            this.panelDesktopPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelDesktopPanel.Location = new System.Drawing.Point(200, 80);
+            this.panelDesktopPanel.Name = "panelDesktopPanel";
+            this.panelDesktopPanel.Size = new System.Drawing.Size(600, 370);
+            this.panelDesktopPanel.TabIndex = 2;
             // 
             // MainForm
             // 

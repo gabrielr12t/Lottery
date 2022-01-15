@@ -21,7 +21,7 @@ namespace Lottery.Core.Infrastructure
 
         #region Properties
 
-        public static IEngine Current
+        public static IEngine? Current
         {
             get
             {
