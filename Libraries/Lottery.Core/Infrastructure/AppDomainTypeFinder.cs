@@ -123,7 +123,7 @@ namespace Lottery.Core.Infrastructure
             {
                 foreach (var a in assemblies)
                 {
-                    Type[] types = null;
+                    Type[]? types = null;
                     try
                     {
                         types = a.GetTypes();
@@ -166,7 +166,7 @@ namespace Lottery.Core.Infrastructure
             {
                 var msg = string.Empty;
                 foreach (var e in ex.LoaderExceptions)
-                    msg += e.Message + Environment.NewLine;
+                    msg += e?.Message + Environment.NewLine;
 
                 var fail = new Exception(msg, ex);
                 Debug.WriteLine(fail.Message, fail);
